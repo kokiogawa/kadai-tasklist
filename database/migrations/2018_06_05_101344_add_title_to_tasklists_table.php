@@ -14,7 +14,9 @@ class AddTitleToTasklistsTable extends Migration
     public function up()
     {
         Schema::table('tasklists', function (Blueprint $table) {
+         $table->integer('user_id')->unsigned()->index();
          $table->string('status');
+         $table->foreign('user_id')->references('id')->on('users');
         });
     }
 

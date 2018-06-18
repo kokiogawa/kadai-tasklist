@@ -16,14 +16,19 @@ class TasklistsController extends Controller
      */
     public function index()
     {
-    $tasklists = Tasklist::all();
+        if (\Auth::check()) {
+    $tasklists = \Auth::user()->tasklists;
+    return view('tasklists.index',[
+        'tasklists' => $tasklists,
+        
+        ]);
     
- return view('tasklists.index', [
- 'tasklists' => $tasklists,
- ]);
+    }else{
+        return view('welcome');
+ 
+}
 
-    }
-
+}
     /**
      * Show the form for creating a new resource.
      *
@@ -49,13 +54,13 @@ class TasklistsController extends Controller
      $this->validate($request, [
  'status' => 'required|max:10', // 追加
  'content' => 'required|max:191',
- ]);
-
-     
+    ]);
  $tasklist = new Tasklist;
- $tasklist->status = $request->status; // 追加
- $tasklist->content = $request->content;
- $tasklist->save();
+ $tasklist ->status = $request -> status;
+ $tasklist ->content = $request -> content;
+ $tasklist ->user_id = \Auth::user()->id;
+ $tasklist ->save();
+ 
  return redirect('/');
  }
 
@@ -67,10 +72,14 @@ class TasklistsController extends Controller
      */
     public function show($id)
  {
- $tasklist = Tasklist::find($id);
- return view('tasklists.show', [
- 'tasklist' => $tasklist,
- ]);
+ $tasklists = Task::find($id);
+ if($tasklist->user_id == \Auth::user()->id){
+     return view('tasklists.show',[
+         'tasklist' => $tasklist,
+         ]);
+ }
+ 
+
  }
 
 
@@ -82,12 +91,13 @@ class TasklistsController extends Controller
      */
     public function edit($id)
  {
- $tasklist = Tasklist::find($id);
- return view('tasklists.edit', [
- 'tasklist' => $tasklist,
- ]);
+ $tasklists = Task::find($id);
+ if($tasklist->user_id == \Auth::user()->id){
+     return view('tasklists.edit',[
+         'tasklist' => $tasklist,
+         ]);
  }
-
+}
 
     /**
      * Update the specified resource in storage.
@@ -119,9 +129,12 @@ class TasklistsController extends Controller
      */
     public function destroy($id)
  {
- $tasklist = Tasklist::find($id);
- $tasklist->delete();
+     $tasklist = Tasklist::find($id);
+     $tasklist ->delete();
+ 
  return redirect('/');
  }
+
+
 
 }
